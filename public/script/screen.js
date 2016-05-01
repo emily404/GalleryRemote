@@ -44,5 +44,9 @@ function getQueryParams() {
 
 
 function connectToServer(){
-    // TODO connect to the socket.io server
+    var screensocket = io();
+    screensocket.on('image selection', function(index){
+        showImage(index);
+    });
 }
+
