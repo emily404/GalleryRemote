@@ -3,6 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="script/remote.js"></script>
     <link rel="stylesheet" href="style/fontawesome/css/font-awesome.css">
     <link rel="stylesheet" href="style/pure/pure-min.css">
@@ -16,10 +17,16 @@
     Settings
 </button>
 <div id="menu">
-    <ul>
-TODO list the devices here
-
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Screen</th>
+                <th>Connect?</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </div>
 <div id="gallery">
 

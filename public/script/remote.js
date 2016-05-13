@@ -1,6 +1,8 @@
 var currentImage = 0; // the currently selected image
 var imageCount = 7; // the maximum number of images available
 var remotesocket;
+var screens;
+var roomname; // same as socket id
 
 function showImage (index){
     // Update selection on remote
@@ -10,7 +12,7 @@ function showImage (index){
     images[index].classList.toggle("selected");
 
     // Send the command to the screen
-    remotesocket.emit('image selection', index);    
+    remotesocket.emit('image selection in room', roomname, index);
 }
 
 function initialiseGallery(){
@@ -38,9 +40,54 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var style = document.querySelector('#menu').style;
         style.display = style.display == "none" || style.display == ""  ? "block" : "none";
     });
+
     connectToServer();
+
+    $(document).on('change' , "input[type='checkbox']" , function(){
+        if (this.checked) {
+            remotesocket.emit('join', roomname, this.value, currentImage);
+        } else {
+            remotesocket.emit('leave', roomname, this.value);
+        }
+    });
+
 });
 
 function connectToServer(){
     remotesocket = io();
+    screens = [];
+
+    remotesocket.on('screen connected', function(screenname){
+        if (!screens.includes(screenname)) {
+            screens.push(screenname);
+            $('#menu table > tbody:last-child').append('<tr id='+screenname+'><td>'+screenname+'</td><td><input type="checkbox" name="screens" value=' + screenname + '></td></tr>');
+            console.log(screenname);
+        }
+    });
+
+    remotesocket.on('id', function(socketid){
+        roomname = socketid;
+        console.log("current socket id = " + socketid);
+    });
+
+    remotesocket.on('connect', function(){
+        remotesocket.emit('remote connected');
+        console.log("remote connected");
+    });
+
+    remotesocket.on('current screens', function(currentscreens){
+        screens = currentscreens;
+        screens.forEach(function (item, index, array) {
+            $('#menu table > tbody:last-child').append('<tr id='+item+'><td>'+item+'</td><td><input type="checkbox" name="screens" value=' + item + '></td></tr>');
+        });
+        console.log(currentscreens);
+    });
+
+    remotesocket.on('screen disconnected', function(screenname) {
+        var i = screens.indexOf(screenname);
+        if (i > -1) {
+            screens.splice(i, 1);
+            $('#' + screenname).remove();
+        }
+    });
 }
