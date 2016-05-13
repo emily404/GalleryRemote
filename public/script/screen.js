@@ -55,6 +55,10 @@ function connectToServer(){
         showImage(index);
     });
 
+    screensocket.on('image clear', function(){
+        clearImage();
+    });
+
     screensocket.on('id', function(socketid){
         screensocket.emit('screen associate', socketid, devicename);
     })

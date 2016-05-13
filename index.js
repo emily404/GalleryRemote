@@ -33,6 +33,13 @@ io.on('connection', function(socket){
     io.to(screens[screen]).emit('image selection', index);
   });
 
+  socket.on('leave', function(roomname, screen) {
+    var screen_socket = io.sockets.connected[screens[screen]];
+    screen_socket.leave(roomname);
+    console.log(screen + ' is leaving ' + roomname);
+    io.to(screens[screen]).emit('image clear');
+  });
+
   socket.on('image selection in room', function(roomname, index){
   	io.to(roomname).emit('image selection', index);
   	console.log('index: ' + index);

@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         if (this.checked) {
             remotesocket.emit('join', roomname, this.value, currentImage);
         } else {
-
+            remotesocket.emit('leave', roomname, this.value);
         }
     });
 
@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 function connectToServer(){
     remotesocket = io();
     screens = [];
+
     remotesocket.on('screen connected', function(screenname){
         if (!screens.includes(screenname)) {
             screens.push(screenname);
@@ -63,14 +64,17 @@ function connectToServer(){
             console.log(screenname);
         }
     });
+
     remotesocket.on('id', function(socketid){
         roomname = socketid;
         console.log("current socket id = " + socketid);
     });
+
     remotesocket.on('connect', function(){
         remotesocket.emit('remote connected');
         console.log("remote connected");
     });
+
     remotesocket.on('current screens', function(currentscreens){
         screens = currentscreens;
         screens.forEach(function (item, index, array) {
