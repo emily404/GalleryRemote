@@ -26,10 +26,11 @@ io.on('connection', function(socket){
     console.log('screen ' + screenname + ' connected');
   });
 
-  socket.on('join', function(roomname, screen) {
+  socket.on('join', function(roomname, screen, index) {
     var screen_socket = io.sockets.connected[screens[screen]];
     screen_socket.join(roomname);
     console.log('joining ' + roomname + ' and ' + screen);
+    io.to(screens[screen]).emit('image selection', index);
   });
 
   socket.on('image selection in room', function(roomname, index){

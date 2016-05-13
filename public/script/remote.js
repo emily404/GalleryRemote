@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     $(document).on('change' , "input[type='checkbox']" , function(){
         if (this.checked) {
-            remotesocket.emit('join', roomname, this.value);
+            remotesocket.emit('join', roomname, this.value, currentImage);
         } else {
 
         }
