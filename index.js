@@ -11,6 +11,11 @@ io.on('connection', function(socket){
 
   socket.emit('id', socket.id);
 
+  socket.on('remote connected', function(){
+    io.emit('current screens', Object.keys(screens));
+    console.log("emitting " + Object.keys(screens));
+  });
+
   socket.on('screen associate', function(socketid, screenname){
     screens[screenname] = socketid;
     console.log(screens);

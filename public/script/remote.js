@@ -67,4 +67,16 @@ function connectToServer(){
         roomname = socketid;
         console.log("current socket id = " + socketid);
     });
+    remotesocket.on('connect', function(){
+        remotesocket.emit('remote connected');
+        console.log("remote connected");
+    });
+    remotesocket.on('current screens', function(currentscreens){
+        screens = currentscreens;
+        screens.forEach(function (item, index, array) {
+            $('#menu table > tbody:last-child').append('<tr><td>'+item+'</td><td><input type="checkbox" name="screens" value=' + item + '></td></tr>');
+        });
+        console.log(currentscreens);
+
+    });
 }
