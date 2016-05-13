@@ -45,8 +45,18 @@ function getQueryParams() {
 
 function connectToServer(){
     var screensocket = io();
+
+    screensocket.on('connect', function(){
+        screensocket.emit('screen connected', devicename);
+        console.log("screen " + devicename + " is emitting");
+    });
+
     screensocket.on('image selection', function(index){
         showImage(index);
     });
+
+    screensocket.on('id', function(socketid){
+        screensocket.emit('screen associate', socketid, devicename);
+    })
 }
 
