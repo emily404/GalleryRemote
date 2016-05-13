@@ -12,7 +12,7 @@ io.on('connection', function(socket){
   socket.emit('id', socket.id);
 
   socket.on('remote connected', function(){
-    io.emit('current screens', Object.keys(screens));
+    socket.emit('current screens', Object.keys(screens));
     console.log("emitting " + Object.keys(screens));
   });
 
@@ -56,9 +56,11 @@ io.on('connection', function(socket){
             break;
         }
     }
-    if (screen){
-        delete screens[key];
+    if (screen) {
+        delete screens[screen];
         console.log(screens);
+    } else {
+        io.to(socket.id).emit('image clear');
     }
   });
 

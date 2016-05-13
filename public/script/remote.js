@@ -2,7 +2,7 @@ var currentImage = 0; // the currently selected image
 var imageCount = 7; // the maximum number of images available
 var remotesocket;
 var screens;
-var roomname;
+var roomname; // same as socket id
 
 function showImage (index){
     // Update selection on remote
