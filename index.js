@@ -48,7 +48,20 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     io.emit('disconnect', socket.id);
     console.log('user disconnected');
+    var screen;
+    for (var key in screens) {
+        if (screens[key] == socket.id) {
+            screen = key;
+            io.emit('screen disconnected', key);
+            break;
+        }
+    }
+    if (screen){
+        delete screens[key];
+        console.log(screens);
+    }
   });
+
 });
 
 http.listen(8080, function(){

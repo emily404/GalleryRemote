@@ -60,7 +60,7 @@ function connectToServer(){
     remotesocket.on('screen connected', function(screenname){
         if (!screens.includes(screenname)) {
             screens.push(screenname);
-            $('#menu table > tbody:last-child').append('<tr><td>'+screenname+'</td><td><input type="checkbox" name="screens" value=' + screenname + '></td></tr>');
+            $('#menu table > tbody:last-child').append('<tr id='+screenname+'><td>'+screenname+'</td><td><input type="checkbox" name="screens" value=' + screenname + '></td></tr>');
             console.log(screenname);
         }
     });
@@ -78,9 +78,16 @@ function connectToServer(){
     remotesocket.on('current screens', function(currentscreens){
         screens = currentscreens;
         screens.forEach(function (item, index, array) {
-            $('#menu table > tbody:last-child').append('<tr><td>'+item+'</td><td><input type="checkbox" name="screens" value=' + item + '></td></tr>');
+            $('#menu table > tbody:last-child').append('<tr id='+item+'><td>'+item+'</td><td><input type="checkbox" name="screens" value=' + item + '></td></tr>');
         });
         console.log(currentscreens);
+    });
 
+    remotesocket.on('screen disconnected', function(screenname) {
+        var i = screens.indexOf(screenname);
+        if (i > -1) {
+            screens.splice(i, 1);
+            $('#' + screenname).remove();
+        }
     });
 }
