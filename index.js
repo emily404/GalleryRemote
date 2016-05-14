@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var maxindex = 6;
 
 app.use(express.static('public'));
 var screens = {};
@@ -41,8 +42,14 @@ io.on('connection', function(socket){
   });
 
   socket.on('image selection in room', function(roomname, index){
-  	io.to(roomname).emit('image selection', index);
-  	console.log('index: ' + index);
+    // multi screen
+    var socket_list = io.sockets.adapter.rooms[roomname];
+    for (var s in socket_list.sockets) {
+      io.sockets.connected[s].emit('image selection', index);
+      if(index < maxindex) {
+        index += 1;
+      }
+    }
   });
 
   socket.on('disconnect', function(){
