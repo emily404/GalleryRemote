@@ -117,13 +117,31 @@ function updateTiltDegrees() {
         // logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
         // logo.style.transform = "rotate("+ tiltLR +"deg)";
 
-        gammaCurrent = tiltLR;
+        // gammaCurrent = tiltLR;
         betaCurrent = tiltFB;
 
       }, false);
     } else {
       document.getElementById("doEvent").innerHTML = "Not supported."
     }
+
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', function(eventData) {
+        var info, xyz = "[X, Y, Z]";
+
+        // Grab the acceleration from the results
+        var acceleration = eventData.acceleration;
+        info = xyz.replace("X", Math.round(acceleration.x));
+        info = info.replace("Y", Math.round(acceleration.y));
+        info = info.replace("Z", Math.round(acceleration.z));
+        document.getElementById("moAccel").innerHTML = info;
+
+        gammaCurrent = acceleration.x;
+
+      }, false);
+    } else {
+      document.getElementById("dmEvent").innerHTML = "Not supported."
+    } 
 }
 
 function jerkTiltLRUpdate() {
@@ -140,23 +158,38 @@ function jerkTiltLRUpdate() {
     }, 40);
 }
 
+function jerkTiltLRUpdateWithAcceleration() {
+    setInterval(function(){
+        if(Math.abs(gammaCurrent) > 1) {
+            if(gammaCurrent > 0) {
+                showImage((currentImage + 1) % imageCount);
+                gammaCurrent = 0;
+            } else {
+                showImage((imageCount + currentImage - 1) % imageCount);  
+                gammaCurrent = 0;              
+            }
+        }        
+    }, 1000);
+}
+
 function jerkTiltFBUpdate() {
     setInterval(function(){
-        if(betaCurrent <= 20) {
+        if(betaCurrent <= 40) {
             // original full screen zoom
             remotesocket.emit('image zoom', 1.0, roomname);            
-        } else if ( 20 < betaCurrent && betaCurrent <= 40) {
+        } else if ( 40 < betaCurrent && betaCurrent <= 60) {
             // zoom out level 2
             remotesocket.emit('image zoom', 0.8, roomname);
-        } else if ( 40 < betaCurrent && betaCurrent <= 60) {
+        } else if ( 60 < betaCurrent && betaCurrent <= 80) {
             // zoom out level 3
             remotesocket.emit('image zoom', 0.6, roomname);
-        } else if ( 60 < betaCurrent) {
+        } else if ( 80 < betaCurrent) {
             // zoom out level 4
             remotesocket.emit('image zoom', 0.4, roomname);
         }
     }, 300);
 }
 
-$(document).ready(jerkTiltLRUpdate);
-$(document).ready(jerkTiltFBUpdate);
+// $(document).ready(jerkTiltLRUpdate);
+$(document).ready(jerkTiltLRUpdateWithAcceleration);
+// $(document).ready(jerkTiltFBUpdate);
