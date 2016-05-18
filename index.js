@@ -72,7 +72,7 @@ io.on('connection', function(socket){
         delete screens[screen];
         console.log(screens);
     } else {
-        io.to(socket.id).emit('image clear');
+        io.to(socket.id+"web").emit('image clear');
     }
   });
 
