@@ -99,33 +99,75 @@ function connectToServer(){
 
 function updateTiltDegrees() {
     if (window.DeviceOrientationEvent) {
-        document.getElementById("doEvent").innerHTML = "DeviceOrientation";
-        // Listen for the deviceorientation event and handle the raw data
-        window.addEventListener('deviceorientation', function(eventData) {
-        // gamma is the left-to-right tilt in degrees, where right is positive
-        var tiltLR = eventData.gamma;
-        // beta is front and back tilt in degrees, where tilting upwards
-        // yields positive values, negative value has not zoom effect
-        var tiltFB = eventData.beta;
-
-        // call our orientation event handler
-        // deviceOrientationHandler(tiltLR, tiltFB, dir);
-        document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
-        document.getElementById("doTiltFB").innerHTML = Math.round(tiltFB);
-
-        // Apply the transform to the image
-        // var logo = document.getElementById("imgLogo");
-        // logo.style.webkitTransform = "rotate("+ tiltLR +"deg)";
-        // logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
-        // logo.style.transform = "rotate("+ tiltLR +"deg)";
-
-        gammaCurrent = tiltLR;
-        betaCurrent = tiltFB;
-
-      }, false);
+        window.addEventListener('deviceorientation', deviceOrientationHandler, false);
     } else {
       document.getElementById("doEvent").innerHTML = "Not supported."
     }
+
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', deviceMotionHandler, false);
+    } else {
+      document.getElementById("dmEvent").innerHTML = "Not supported."
+    }
+}
+
+function deviceMotionHandler(eventData) {
+  var info, xyz = "[X, Y, Z]";
+
+  // Grab the acceleration from the results
+  var acceleration = eventData.acceleration;
+  // info = xyz.replace("X", acceleration.x);
+  // info = info.replace("Y", acceleration.y);
+  // info = info.replace("Z", acceleration.z);
+  var acceleration_x = acceleration.x;
+  document.getElementById("moAccel").innerHTML = acceleration_x;
+
+  // Grab the acceleration including gravity from the results
+  acceleration = eventData.accelerationIncludingGravity;
+  // info = xyz.replace("X", acceleration.x);
+  // info = info.replace("Y", acceleration.y);
+  // info = info.replace("Z", acceleration.z);
+  info = acceleration.x;
+  document.getElementById("moAccelGrav").innerHTML = info;
+
+  // Grab the rotation rate from the results
+  var rotation = eventData.rotationRate;
+  // info = xyz.replace("X", rotation.alpha);
+  // info = info.replace("Y", rotation.beta);
+  // info = info.replace("Z", rotation.gamma);
+  var rotation_gamma = rotation.gamma;
+  document.getElementById("moRotation").innerHTML = rotation_gamma;
+
+  // // Grab the refresh interval from the results
+  info = eventData.interval;
+  document.getElementById("moInterval").innerHTML = info;
+
+  if (acceleration_x > 20) {
+    if (rotation_gamma < -10)
+        showImage((currentImage + 1) % imageCount);
+    else if (rotation_gamma > 10)
+        showImage((imageCount + currentImage - 1) % imageCount);
+  }
+}
+
+function deviceOrientationHandler(eventData) {
+    // gamma is the left-to-right tilt in degrees, where right is positive
+    var tiltLR = eventData.gamma;
+    // beta is front and back tilt in degrees, where tilting upwards
+    // yields positive values, negative value has not zoom effect
+    var tiltFB = eventData.beta;
+
+    // document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
+    // document.getElementById("doTiltFB").innerHTML = Math.round(tiltFB);
+
+    // Apply the transform to the image
+    // var logo = document.getElementById("imgLogo");
+    // logo.style.webkitTransform = "rotate("+ tiltLR +"deg)";
+    // logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
+    // logo.style.transform = "rotate("+ tiltLR +"deg)";
+
+    gammaCurrent = tiltLR;
+    betaCurrent = tiltFB;
 }
 
 function jerkTiltLRUpdate() {
@@ -142,12 +184,13 @@ function jerkTiltLRUpdate() {
     }, 40);
 }
 
+
 function jerkTiltFBUpdate() {
     setInterval(function(){
         if(betaCurrent <= 20) {
             // original full screen zoom
             console.log('less than 20');
-            remotesocket.emit('image zoom', 1.0, roomname);            
+            remotesocket.emit('image zoom', 1.0, roomname);
         } else if ( 20 < betaCurrent && betaCurrent <= 40) {
             // zoom out level 2
             remotesocket.emit('image zoom', 0.8, roomname);
@@ -161,5 +204,5 @@ function jerkTiltFBUpdate() {
     }, 300);
 }
 
-$(document).ready(jerkTiltLRUpdate);
+// $(document).ready(jerkTiltLRUpdate); // comment out to use accleration
 $(document).ready(jerkTiltFBUpdate);
