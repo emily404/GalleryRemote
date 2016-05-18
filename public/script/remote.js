@@ -3,6 +3,8 @@ var imageCount = 7; // the maximum number of images available
 var remotesocket;
 var screens;
 var roomname;
+var gammaOld = 0;
+var gammaCurrent = 0;
 
 function showImage (index){
     // Update selection on remote
@@ -51,6 +53,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     });
 
+    jerkTiltLR();
+
 });
 
 function connectToServer(){
@@ -91,3 +95,45 @@ function connectToServer(){
         }
     });
 }
+
+function jerkTiltLR() {
+    if (window.DeviceOrientationEvent) {
+        document.getElementById("doEvent").innerHTML = "DeviceOrientation";
+        // Listen for the deviceorientation event and handle the raw data
+        window.addEventListener('deviceorientation', function(eventData) {
+        // gamma is the left-to-right tilt in degrees, where right is positive
+        var tiltLR = eventData.gamma;
+
+        // call our orientation event handler
+        // deviceOrientationHandler(tiltLR, tiltFB, dir);
+        document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
+
+        // Apply the transform to the image
+        // var logo = document.getElementById("imgLogo");
+        // logo.style.webkitTransform = "rotate("+ tiltLR +"deg)";
+        // logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
+        // logo.style.transform = "rotate("+ tiltLR +"deg)";
+
+        gammaCurrent = tiltLR;
+
+      }, false);
+    } else {
+      document.getElementById("doEvent").innerHTML = "Not supported."
+    }
+}
+
+function jerkTiltLRUpdate() {
+    setInterval(function(){
+        var diff = gammaCurrent - gammaOld;
+        if (diff > 10) {
+            showImage((currentImage + 1) % imageCount);
+            gammaOld = gammaCurrent;
+        } else if (diff < -10) {
+            showImage((imageCount + currentImage - 1) % imageCount);
+            gammaOld = gammaCurrent;
+        }
+        console.log("Updating...");
+    }, 40);
+}
+
+$(document).ready(jerkTiltLRUpdate);
