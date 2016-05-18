@@ -57,6 +57,10 @@ io.on('connection', function(socket){
     refreshScreens(roomname, index);
   });
 
+  socket.on('image zoom', function(zoomPercentage, roomname){
+    io.to(roomname).emit('image zoom', zoomPercentage);
+  });
+  
   socket.on('disconnect', function(){
     io.emit('disconnect', socket.id);
     console.log('user disconnected');
