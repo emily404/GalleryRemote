@@ -108,8 +108,6 @@ function updateTiltDegrees() {
         // yields positive values, negative value has not zoom effect
         var tiltFB = eventData.beta;
 
-        // call our orientation event handler
-        // deviceOrientationHandler(tiltLR, tiltFB, dir);
         document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
         document.getElementById("doTiltFB").innerHTML = Math.round(tiltFB);
 
@@ -146,7 +144,6 @@ function jerkTiltFBUpdate() {
     setInterval(function(){
         if(betaCurrent <= 20) {
             // original full screen zoom
-            console.log('less than 20');
             remotesocket.emit('image zoom', 1.0, roomname);            
         } else if ( 20 < betaCurrent && betaCurrent <= 40) {
             // zoom out level 2
