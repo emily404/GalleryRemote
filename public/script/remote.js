@@ -126,12 +126,10 @@ function jerkTiltLRUpdate() {
     setInterval(function(){
         var diff = gammaCurrent - gammaOld;
         if (diff > 10) {
-            currentImage = (currentImage + 1) % imageCount;
-            showImage(currentImage);
+            showImage((currentImage + 1) % imageCount);
             gammaOld = gammaCurrent;
         } else if (diff < -10) {
-            currentImage = (imageCount + currentImage - 1) % imageCount;
-            showImage(currentImage);
+            showImage((imageCount + currentImage - 1) % imageCount);
             gammaOld = gammaCurrent;
         }
         console.log("Updating...");
