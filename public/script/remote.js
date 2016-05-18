@@ -109,10 +109,10 @@ function jerkTiltLR() {
         document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
 
         // Apply the transform to the image
-        var logo = document.getElementById("imgLogo");
-        logo.style.webkitTransform = "rotate("+ tiltLR +"deg)";
-        logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
-        logo.style.transform = "rotate("+ tiltLR +"deg)";
+        // var logo = document.getElementById("imgLogo");
+        // logo.style.webkitTransform = "rotate("+ tiltLR +"deg)";
+        // logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
+        // logo.style.transform = "rotate("+ tiltLR +"deg)";
 
         gammaCurrent = tiltLR;
 
@@ -127,11 +127,11 @@ function jerkTiltLRUpdate() {
         var diff = gammaCurrent - gammaOld;
         if (diff > 10) {
             currentImage = (currentImage + 1) % imageCount;
-            remotesocket.emit('image selection in room', roomname, currentImage);
+            showImage(currentImage);
             gammaOld = gammaCurrent;
         } else if (diff < -10) {
-            currentImage = (imageCount - currentImage - 1) % imageCount;
-            remotesocket.emit('image selection in room', roomname, currentImage);
+            currentImage = (imageCount + currentImage - 1) % imageCount;
+            showImage(currentImage);
             gammaOld = gammaCurrent;
         }
         console.log("Updating...");
