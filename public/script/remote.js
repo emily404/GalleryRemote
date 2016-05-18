@@ -97,29 +97,73 @@ function connectToServer(){
 }
 
 function jerkTiltLR() {
-    if (window.DeviceOrientationEvent) {
-        document.getElementById("doEvent").innerHTML = "DeviceOrientation";
-        // Listen for the deviceorientation event and handle the raw data
-        window.addEventListener('deviceorientation', function(eventData) {
-        // gamma is the left-to-right tilt in degrees, where right is positive
-        var tiltLR = eventData.gamma;
+    // if (window.DeviceOrientationEvent) {
+    //     window.addEventListener('deviceorientation', deviceOrientationHandler, false);
+    // } else {
+    //   document.getElementById("doEvent").innerHTML = "Not supported."
+    // }
 
-        // call our orientation event handler
-        // deviceOrientationHandler(tiltLR, tiltFB, dir);
-        document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
-
-        // Apply the transform to the image
-        // var logo = document.getElementById("imgLogo");
-        // logo.style.webkitTransform = "rotate("+ tiltLR +"deg)";
-        // logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
-        // logo.style.transform = "rotate("+ tiltLR +"deg)";
-
-        gammaCurrent = tiltLR;
-
-      }, false);
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', deviceMotionHandler, false);
     } else {
-      document.getElementById("doEvent").innerHTML = "Not supported."
+      document.getElementById("dmEvent").innerHTML = "Not supported."
     }
+}
+
+function deviceMotionHandler(eventData) {
+  var info, xyz = "[X, Y, Z]";
+
+  // Grab the acceleration from the results
+  var acceleration = eventData.acceleration;
+  // info = xyz.replace("X", acceleration.x);
+  // info = info.replace("Y", acceleration.y);
+  // info = info.replace("Z", acceleration.z);
+  var acceleration_x = acceleration.x;
+  document.getElementById("moAccel").innerHTML = acceleration_x;
+
+  // Grab the acceleration including gravity from the results
+  acceleration = eventData.accelerationIncludingGravity;
+  // info = xyz.replace("X", acceleration.x);
+  // info = info.replace("Y", acceleration.y);
+  // info = info.replace("Z", acceleration.z);
+  info = acceleration.x;
+  document.getElementById("moAccelGrav").innerHTML = info;
+
+  // Grab the rotation rate from the results
+  var rotation = eventData.rotationRate;
+  // info = xyz.replace("X", rotation.alpha);
+  // info = info.replace("Y", rotation.beta);
+  // info = info.replace("Z", rotation.gamma);
+  var rotation_gamma = rotation.gamma;
+  document.getElementById("moRotation").innerHTML = rotation_gamma;
+
+  // // Grab the refresh interval from the results
+  info = eventData.interval;
+  document.getElementById("moInterval").innerHTML = info;
+
+  if (acceleration_x > 20) {
+    if (rotation_gamma < -10)
+        showImage((currentImage + 1) % imageCount);
+    else if (rotation_gamma > 10)
+        showImage((imageCount + currentImage - 1) % imageCount);
+  }
+}
+
+function deviceOrientationHandler(eventData) {
+    // gamma is the left-to-right tilt in degrees, where right is positive
+    var tiltLR = eventData.gamma;
+
+    // call our orientation event handler
+    // deviceOrientationHandler(tiltLR, tiltFB, dir);
+    document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
+
+    // Apply the transform to the image
+    // var logo = document.getElementById("imgLogo");
+    // logo.style.webkitTransform = "rotate("+ tiltLR +"deg)";
+    // logo.style.MozTransform = "rotate("+ tiltLR +"deg)";
+    // logo.style.transform = "rotate("+ tiltLR +"deg)";
+
+    gammaCurrent = tiltLR;
 }
 
 function jerkTiltLRUpdate() {
@@ -136,4 +180,4 @@ function jerkTiltLRUpdate() {
     }, 40);
 }
 
-$(document).ready(jerkTiltLRUpdate);
+// $(document).ready(jerkTiltLRUpdate);
