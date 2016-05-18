@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         if (this.checked) {
             remotesocket.emit('join', roomname, this.value, currentImage);
         } else {
-            remotesocket.emit('leave', roomname, this.value);
+            remotesocket.emit('leave', roomname, this.value, currentImage);
         }
     });
 
@@ -66,7 +66,7 @@ function connectToServer(){
     });
 
     remotesocket.on('id', function(socketid){
-        roomname = socketid;
+        roomname = socketid + "web";
         console.log("current socket id = " + socketid);
     });
 

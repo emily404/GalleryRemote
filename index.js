@@ -7,6 +7,16 @@ var imageCount = 7;
 app.use(express.static('public'));
 var screens = {};
 
+function refreshScreens(roomname, index) {
+    // multi screen
+    var socket_list = io.sockets.adapter.rooms[roomname];
+    if (socket_list)
+        for (var s in socket_list.sockets) {
+          io.sockets.connected[s].emit('image selection', index);
+          index = (index + 1) % imageCount;
+        }
+}
+
 io.on('connection', function(socket){
   console.log('a user connected ' + socket.id);
 
@@ -31,23 +41,20 @@ io.on('connection', function(socket){
     var screen_socket = io.sockets.connected[screens[screen]];
     screen_socket.join(roomname);
     console.log('joining ' + roomname + ' and ' + screen);
-    io.to(screens[screen]).emit('image selection', index);
+    // io.to(screens[screen]).emit('image selection', index);
+    refreshScreens(roomname, index);
   });
 
-  socket.on('leave', function(roomname, screen) {
+  socket.on('leave', function(roomname, screen, index) {
     var screen_socket = io.sockets.connected[screens[screen]];
     screen_socket.leave(roomname);
     console.log(screen + ' is leaving ' + roomname);
     io.to(screens[screen]).emit('image clear');
+    refreshScreens(roomname, index);
   });
 
   socket.on('image selection in room', function(roomname, index){
-    // multi screen
-    var socket_list = io.sockets.adapter.rooms[roomname];
-    for (var s in socket_list.sockets) {
-      io.sockets.connected[s].emit('image selection', index);
-      index = (index + 1) % imageCount;
-    }
+    refreshScreens(roomname, index);
   });
 
   socket.on('disconnect', function(){
