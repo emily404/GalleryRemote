@@ -5,6 +5,7 @@ var screens;
 var roomname;
 var gammaOld = 0;
 var gammaCurrent = 0;
+var betaCurrent = 0;
 
 function showImage (index){
     // Update selection on remote
@@ -53,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     });
 
-    jerkTiltLR();
+    updateTiltDegrees();
 
 });
 
@@ -96,17 +97,21 @@ function connectToServer(){
     });
 }
 
-function jerkTiltLR() {
+function updateTiltDegrees() {
     if (window.DeviceOrientationEvent) {
         document.getElementById("doEvent").innerHTML = "DeviceOrientation";
         // Listen for the deviceorientation event and handle the raw data
         window.addEventListener('deviceorientation', function(eventData) {
         // gamma is the left-to-right tilt in degrees, where right is positive
         var tiltLR = eventData.gamma;
+        // beta is front and back tilt in degrees, where tilting upwards
+        // yields positive values, negative value has not zoom effect
+        var tiltFB = eventData.beta;
 
         // call our orientation event handler
         // deviceOrientationHandler(tiltLR, tiltFB, dir);
         document.getElementById("doTiltLR").innerHTML = Math.round(tiltLR);
+        document.getElementById("doTiltFB").innerHTML = Math.round(tiltFB);
 
         // Apply the transform to the image
         // var logo = document.getElementById("imgLogo");
@@ -115,6 +120,7 @@ function jerkTiltLR() {
         // logo.style.transform = "rotate("+ tiltLR +"deg)";
 
         gammaCurrent = tiltLR;
+        betaCurrent = tiltFB;
 
       }, false);
     } else {
@@ -132,8 +138,28 @@ function jerkTiltLRUpdate() {
             showImage((imageCount + currentImage - 1) % imageCount);
             gammaOld = gammaCurrent;
         }
-        console.log("Updating...");
+        console.log("Updating tilt LR...");
     }, 40);
 }
 
+function jerkTiltFBUpdate() {
+    setInterval(function(){
+        if(betaCurrent <= 20) {
+            // original full screen zoom
+            console.log('less than 20');
+            remotesocket.emit('image zoom', 1.0, roomname);            
+        } else if ( 20 < betaCurrent && betaCurrent <= 40) {
+            // zoom out level 2
+            remotesocket.emit('image zoom', 0.8, roomname);
+        } else if ( 40 < betaCurrent && betaCurrent <= 60) {
+            // zoom out level 3
+            remotesocket.emit('image zoom', 0.6, roomname);
+        } else if ( 60 < betaCurrent) {
+            // zoom out level 4
+            remotesocket.emit('image zoom', 0.4, roomname);
+        }
+    }, 300);
+}
+
 $(document).ready(jerkTiltLRUpdate);
+$(document).ready(jerkTiltFBUpdate);

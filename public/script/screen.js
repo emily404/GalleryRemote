@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     connectToServer();
 });
 
-function showImage (index){
+function showImage (index) {
     var img = document.querySelector('#image');
     var msg = document.querySelector('#msg');
     if (index >= 0 && index <= imageCount){
@@ -21,11 +21,16 @@ function showImage (index){
     }
 }
 
-function clearImage(){
+function clearImage() {
     var img = document.querySelector('#image');
     var msg = document.querySelector('#msg');
     img.style.display = 'none';
     msg.style.display = 'block';
+}
+
+function zoomImage(zoomPercentage) {
+    var img = document.querySelector('#image');
+    img.style.height = img.naturalHeight * zoomPercentage + 'px';
 }
 
 function getQueryParams() {
@@ -43,7 +48,7 @@ function getQueryParams() {
 }
 
 
-function connectToServer(){
+function connectToServer() {
     var screensocket = io();
 
     screensocket.on('connect', function(){
@@ -61,6 +66,10 @@ function connectToServer(){
 
     screensocket.on('id', function(socketid){
         screensocket.emit('screen associate', socketid, devicename);
-    })
+    });
+
+    screensocket.on('image zoom', function(zoomPercentage){
+        zoomImage(zoomPercentage);
+    });
 }
 
