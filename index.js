@@ -2,10 +2,20 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var maxindex = 6;
+var imageCount = 7;
 
 app.use(express.static('public'));
 var screens = {};
+
+function refreshScreens(roomname, index) {
+    // multi screen
+    var socket_list = io.sockets.adapter.rooms[roomname];
+    if (socket_list)
+        for (var s in socket_list.sockets) {
+          io.sockets.connected[s].emit('image selection', index);
+          index = (index + 1) % imageCount;
+        }
+}
 
 io.on('connection', function(socket){
   console.log('a user connected ' + socket.id);
@@ -31,25 +41,20 @@ io.on('connection', function(socket){
     var screen_socket = io.sockets.connected[screens[screen]];
     screen_socket.join(roomname);
     console.log('joining ' + roomname + ' and ' + screen);
-    io.to(screens[screen]).emit('image selection', index);
+    // io.to(screens[screen]).emit('image selection', index);
+    refreshScreens(roomname, index);
   });
 
-  socket.on('leave', function(roomname, screen) {
+  socket.on('leave', function(roomname, screen, index) {
     var screen_socket = io.sockets.connected[screens[screen]];
     screen_socket.leave(roomname);
     console.log(screen + ' is leaving ' + roomname);
     io.to(screens[screen]).emit('image clear');
+    refreshScreens(roomname, index);
   });
 
   socket.on('image selection in room', function(roomname, index){
-    // multi screen
-    var socket_list = io.sockets.adapter.rooms[roomname];
-    for (var s in socket_list.sockets) {
-      io.sockets.connected[s].emit('image selection', index);
-      if(index < maxindex) {
-        index += 1;
-      }
-    }
+    refreshScreens(roomname, index);
   });
 
   socket.on('disconnect', function(){
@@ -67,7 +72,7 @@ io.on('connection', function(socket){
         delete screens[screen];
         console.log(screens);
     } else {
-        io.to(socket.id).emit('image clear');
+        io.to(socket.id+"web").emit('image clear');
     }
   });
 

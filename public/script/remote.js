@@ -2,7 +2,7 @@ var currentImage = 0; // the currently selected image
 var imageCount = 7; // the maximum number of images available
 var remotesocket;
 var screens;
-var roomname = 'room of current remote';
+var roomname;
 
 function showImage (index){
     // Update selection on remote
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         if (this.checked) {
             remotesocket.emit('join', roomname, this.value, currentImage);
         } else {
-            remotesocket.emit('leave', roomname, this.value);
+            remotesocket.emit('leave', roomname, this.value, currentImage);
         }
     });
 
@@ -63,6 +63,11 @@ function connectToServer(){
             $('#menu table > tbody:last-child').append('<tr id='+screenname+'><td>'+screenname+'</td><td><input type="checkbox" name="screens" value=' + screenname + '></td></tr>');
             console.log(screenname);
         }
+    });
+
+    remotesocket.on('id', function(socketid){
+        roomname = socketid + "web";
+        console.log("current socket id = " + socketid);
     });
 
     remotesocket.on('connect', function(){
